@@ -9,37 +9,88 @@
 import SpriteKit
 
 class GameScene: SKScene {
-    override func didMoveToView(view: SKView) {
-        /* Setup your scene here */
-        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
-        myLabel.text = "Hello, World!"
-        myLabel.fontSize = 45
-        myLabel.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame))
-        
-        self.addChild(myLabel)
+    
+    var fontFamilyIndex = 0
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-       /* Called when a touch begins */
-        
-        for touch in touches {
-            let location = touch.locationInNode(self)
-            
-            let sprite = SKSpriteNode(imageNamed:"Spaceship")
-            
-            sprite.xScale = 0.5
-            sprite.yScale = 0.5
-            sprite.position = location
-            
-            let action = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
-            
-            sprite.runAction(SKAction.repeatActionForever(action))
-            
-            self.addChild(sprite)
+    override init(size: CGSize) {
+        super.init(size: size)
+        showFontFamilyByIndex(fontFamilyIndex)
+    }
+    
+    func incrementIndex() {
+        fontFamilyIndex++
+        if fontFamilyIndex >= UIFont.familyNames().count {
+            fontFamilyIndex = 0
         }
     }
-   
-    override func update(currentTime: CFTimeInterval) {
-        /* Called before each frame is rendered */
+    
+    func decrementIndex() {
+        fontFamilyIndex--
+        if fontFamilyIndex <= 0 {
+            fontFamilyIndex = UIFont.familyNames().count - 1
+        }
+    }
+    
+    override func didMoveToView(view: SKView) {
+        let swipeLeftRecognizer = UISwipeGestureRecognizer(target: self, action: "handleLeftSwipe:")
+        swipeLeftRecognizer.direction = .Left
+        view.addGestureRecognizer(swipeLeftRecognizer)
+        
+        let swipeRightRecognizer = UISwipeGestureRecognizer(target: self, action: "handleRightSwipe:")
+        swipeRightRecognizer.direction = .Right
+        view.addGestureRecognizer(swipeRightRecognizer)
+
+    }
+    
+    
+    func handleLeftSwipe(recognizer:UIGestureRecognizer) {
+        incrementIndex()
+        showFontFamilyByIndex(fontFamilyIndex)
+    }
+    
+    func handleRightSwipe(recognizer:UIGestureRecognizer) {
+        decrementIndex()
+        showFontFamilyByIndex(fontFamilyIndex)
+    }
+    
+    func showFontFamilyByIndex(index: Int) {
+        removeAllChildren()
+        let fontFamilyName = UIFont.familyNames()[fontFamilyIndex]
+        print("fontFamilyName: \(fontFamilyName)")
+        
+        let fontNames = UIFont.fontNamesForFamilyName(fontFamilyName)
+        
+        for (i, fontName) in fontNames.enumerate() {
+            let label = SKLabelNode(fontNamed: fontName)
+            label.text = fontName
+            
+            let x = size.width / 2
+            let y = (size.height * (CGFloat(i+1))) / (CGFloat(fontNames.count)+1)
+            label.position = CGPoint(x: x, y: y)
+            
+            label.fontSize = 50
+            label.verticalAlignmentMode = .Center
+            addChild(label)
+        }
+        
+        let totalFamilyCount = UIFont.familyNames().count
+        
+        let titleLabel = SKLabelNode(text: "Installed Families \(totalFamilyCount)")
+        titleLabel.fontName = "Helvetica"
+        titleLabel.position = CGPoint(x: size.width / 2, y: size.height - 40)
+        titleLabel.fontColor = UIColor.yellowColor()
+        addChild(titleLabel)
+        
+        
+        let indexLabel = SKLabelNode(text: "Family Index: \(fontFamilyIndex), Fonts: \(fontNames.count)")
+        indexLabel.fontName = "Helvetica"
+        indexLabel.position = CGPoint(x: size.width / 2, y: 20)
+        indexLabel.fontColor = UIColor.yellowColor()
+        addChild(indexLabel)
+        
     }
 }
