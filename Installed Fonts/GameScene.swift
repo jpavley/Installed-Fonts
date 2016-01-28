@@ -84,7 +84,7 @@ class GameScene: SKScene {
             // - Divide the vertical space into a stack of evenly size zones
             // - Postion each label at the bottom of a zone
             // - Use the number of labels + 1 as the number of zones
-            // - Use a faction to do this interatively
+            // - Use a fraction to do this interatively
             
             let x = size.width / 2
             let yNumerator = size.height * (CGFloat(i+1))
